@@ -23,6 +23,6 @@ func (r *BaseRepository[T]) FindAll(db *gorm.DB, page *sql.Pagination, sort *sql
 	return sql.FindAll[T](db, nil, page, sort)
 }
 
-func (r *BaseRepository[T]) FindById(db *gorm.DB, id uint) (*T, error) {
+func (r *BaseRepository[T]) FindByID(db *gorm.DB, id uint) (*T, error) {
 	return sql.FindOne[T](db, sql.Eq("id", id))
 }

@@ -1,5 +1,14 @@
 package wxp
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/WebXense/sql"
+	"github.com/gin-gonic/gin"
+)
 
-type Service[T any] func(ctx *gin.Context, req *T) (interface{}, Error)
+type Request[T any] struct {
+	Object *T
+	Page   *sql.Pagination
+	Sort   *sql.Sort
+}
+
+type Service[T any] func(ctx *gin.Context, req *Request[T]) (interface{}, Error)

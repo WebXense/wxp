@@ -8,7 +8,11 @@ import (
 func GET[T any](path string, service Service[T], response interface{}, middleware ...gin.HandlerFunc) {
 	handler := func(ctx *gin.Context) {
 		var err Error
-		data, err := service(ctx, ginger.Request[T](ctx))
+		data, err := service(ctx, &Request[T]{
+			Object: ginger.Request[T](ctx),
+			Page:   ginger.PaginationRequest(ctx),
+			Sort:   ginger.SortRequest(ctx),
+		})
 		if err != nil {
 			ERR(ctx, err)
 			return
@@ -27,7 +31,9 @@ func GET[T any](path string, service Service[T], response interface{}, middlewar
 func POST[T any](path string, service Service[T], response interface{}, middleware ...gin.HandlerFunc) {
 	handler := func(ctx *gin.Context) {
 		var err Error
-		data, err := service(ctx, ginger.Request[T](ctx))
+		data, err := service(ctx, &Request[T]{
+			Object: ginger.Request[T](ctx),
+		})
 		if err != nil {
 			ERR(ctx, err)
 			return
@@ -46,7 +52,9 @@ func POST[T any](path string, service Service[T], response interface{}, middlewa
 func PUT[T any](path string, service Service[T], response interface{}, middleware ...gin.HandlerFunc) {
 	handler := func(ctx *gin.Context) {
 		var err Error
-		data, err := service(ctx, ginger.Request[T](ctx))
+		data, err := service(ctx, &Request[T]{
+			Object: ginger.Request[T](ctx),
+		})
 		if err != nil {
 			ERR(ctx, err)
 			return
@@ -65,7 +73,9 @@ func PUT[T any](path string, service Service[T], response interface{}, middlewar
 func DELETE[T any](path string, service Service[T], response interface{}, middleware ...gin.HandlerFunc) {
 	handler := func(ctx *gin.Context) {
 		var err Error
-		data, err := service(ctx, ginger.Request[T](ctx))
+		data, err := service(ctx, &Request[T]{
+			Object: ginger.Request[T](ctx),
+		})
 		if err != nil {
 			ERR(ctx, err)
 			return

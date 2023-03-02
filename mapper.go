@@ -1,32 +1,28 @@
 package wxp
 
 import (
-	"fmt"
 	"reflect"
 )
 
 type BaseMapper[T any] struct{}
 
-func (m *BaseMapper[T]) Map2DTO(from interface{}) (*T, error) {
+func (m *BaseMapper[T]) Map2DTO(from interface{}) *T {
 	return m.map2(from)
 }
 
-func (m *BaseMapper[T]) Map2DTOs(from []interface{}) ([]T, error) {
+func (m *BaseMapper[T]) Map2DTOs(from []interface{}) []T {
 	var to []T
 	for _, f := range from {
-		t, err := m.Map2DTO(f)
-		if err != nil {
-			return nil, err
-		}
+		t := m.Map2DTO(f)
 		to = append(to, *t)
 	}
-	return to, nil
+	return to
 }
 
-func (m *BaseMapper[T]) map2(from interface{}) (*T, error) {
+func (m *BaseMapper[T]) map2(from interface{}) *T {
 	val := reflect.Indirect(reflect.ValueOf(from))
 	if val.Kind() != reflect.Struct {
-		return nil, fmt.Errorf("from must be a struct")
+		panic("from must be a struct")
 	}
 
 	values := make(map[string]reflect.Value)
@@ -42,5 +38,5 @@ func (m *BaseMapper[T]) map2(from interface{}) (*T, error) {
 			toVal.Field(i).Set(val)
 		}
 	}
-	return to, nil
+	return to
 }

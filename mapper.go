@@ -7,7 +7,7 @@ import (
 type BaseMapper[T any] struct{}
 
 func (m *BaseMapper[T]) Map2DTO(from interface{}) *T {
-	return MapObject(from, new(T))
+	return MapObject[T](from)
 }
 
 func (m *BaseMapper[T]) Map2DTOs(fromArray interface{}) []T {
@@ -29,7 +29,8 @@ func (m *BaseMapper[T]) Map2DTOs(fromArray interface{}) []T {
 	return to
 }
 
-func MapObject[T any](from interface{}, to *T) *T {
+func MapObject[T any](from interface{}) *T {
+	to := new(T)
 	toVal := reflect.Indirect(reflect.ValueOf(to))
 	if toVal.Kind() != reflect.Struct {
 		panic("to must be a struct")

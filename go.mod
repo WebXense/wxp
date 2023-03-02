@@ -1,4 +1,4 @@
-module github.com/Webxense/wxp
+module github.com/WebXense/wxp
 
 go 1.20
 
@@ -7,7 +7,7 @@ require (
 	github.com/WebXense/ginger v1.1.1
 	github.com/WebXense/sql v1.0.3
 	github.com/gin-gonic/gin v1.9.0
-	gorm.io/gorm v1.24.3
+	gorm.io/gorm v1.24.6
 )
 
 require (

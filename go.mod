@@ -1,4 +1,4 @@
-module wxp
+module github.com/Webxense/wxp
 
 go 1.20
 

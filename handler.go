@@ -5,10 +5,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GET[T any](path string, service Service[T], response interface{}, middleware ...gin.HandlerFunc) {
-	handler := func(ctx *gin.Context) {
+type HandlerResponse[T any] struct {
+	Route    string
+	Method   string
+	Response interface{}
+	Service  Service[T]
+}
+
+type Handler[T any] func() *HandlerResponse[T]
+
+func RegisterHandler[T any](handler Handler[T], middleware ...gin.HandlerFunc) {
+	setting := handler()
+	ginHandler := func(ctx *gin.Context) {
 		var err Error
-		data, err := service(ctx, &Request[T]{
+		data, err := setting.Service(&Request[T]{
+			Ctx:    ctx,
 			Object: ginger.Request[T](ctx),
 			Page:   ginger.PaginationRequest(ctx),
 			Sort:   ginger.SortRequest(ctx),
@@ -20,73 +31,10 @@ func GET[T any](path string, service Service[T], response interface{}, middlewar
 		OK(ctx, data, nil)
 	}
 	if middleware == nil {
-		Engine.GET(path, handler)
+		Engine.Handle(setting.Method, setting.Route, ginHandler)
 		return
 	} else {
-		middleware = append(middleware, handler)
-		Engine.GET(path, middleware...)
-	}
-}
-
-func POST[T any](path string, service Service[T], response interface{}, middleware ...gin.HandlerFunc) {
-	handler := func(ctx *gin.Context) {
-		var err Error
-		data, err := service(ctx, &Request[T]{
-			Object: ginger.Request[T](ctx),
-		})
-		if err != nil {
-			ERR(ctx, err)
-			return
-		}
-		OK(ctx, data, nil)
-	}
-	if middleware == nil {
-		Engine.POST(path, handler)
-		return
-	} else {
-		middleware = append(middleware, handler)
-		Engine.POST(path, middleware...)
-	}
-}
-
-func PUT[T any](path string, service Service[T], response interface{}, middleware ...gin.HandlerFunc) {
-	handler := func(ctx *gin.Context) {
-		var err Error
-		data, err := service(ctx, &Request[T]{
-			Object: ginger.Request[T](ctx),
-		})
-		if err != nil {
-			ERR(ctx, err)
-			return
-		}
-		OK(ctx, data, nil)
-	}
-	if middleware == nil {
-		Engine.PUT(path, handler)
-		return
-	} else {
-		middleware = append(middleware, handler)
-		Engine.PUT(path, middleware...)
-	}
-}
-
-func DELETE[T any](path string, service Service[T], response interface{}, middleware ...gin.HandlerFunc) {
-	handler := func(ctx *gin.Context) {
-		var err Error
-		data, err := service(ctx, &Request[T]{
-			Object: ginger.Request[T](ctx),
-		})
-		if err != nil {
-			ERR(ctx, err)
-			return
-		}
-		OK(ctx, data, nil)
-	}
-	if middleware == nil {
-		Engine.DELETE(path, handler)
-		return
-	} else {
-		middleware = append(middleware, handler)
-		Engine.DELETE(path, middleware...)
+		middleware = append(middleware, ginHandler)
+		Engine.Handle(setting.Method, setting.Route, middleware...)
 	}
 }

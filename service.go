@@ -6,9 +6,14 @@ import (
 )
 
 type Request[T any] struct {
+	Ctx    *gin.Context
 	Object *T
 	Page   *sql.Pagination
 	Sort   *sql.Sort
 }
 
-type Service[T any] func(ctx *gin.Context, req *Request[T]) (interface{}, Error)
+type Response[T any] struct {
+	Data *T
+}
+
+type Service[T any] func(req *Request[T]) (interface{}, Error)

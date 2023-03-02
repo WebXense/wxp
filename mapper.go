@@ -7,7 +7,7 @@ import (
 type BaseMapper[T any] struct{}
 
 func (m *BaseMapper[T]) Map2DTO(from interface{}) *T {
-	return m.map2(from)
+	return MapObject(from, new(T))
 }
 
 func (m *BaseMapper[T]) Map2DTOs(fromArray interface{}) []T {
@@ -29,24 +29,23 @@ func (m *BaseMapper[T]) Map2DTOs(fromArray interface{}) []T {
 	return to
 }
 
-func (m *BaseMapper[T]) map2(from interface{}) *T {
-	val := reflect.Indirect(reflect.ValueOf(from))
-	if val.Kind() != reflect.Struct {
+func MapObject[T any](from interface{}, to *T) *T {
+	toVal := reflect.Indirect(reflect.ValueOf(to))
+	if toVal.Kind() != reflect.Struct {
+		panic("to must be a struct")
+	}
+
+	fromVal := reflect.Indirect(reflect.ValueOf(from))
+	if fromVal.Kind() != reflect.Struct {
 		panic("from must be a struct")
 	}
 
-	values := make(map[string]reflect.Value)
-	for i := 0; i < val.NumField(); i++ {
-		values[val.Type().Field(i).Name] = val.Field(i)
-	}
-
-	to := new(T)
-	toVal := reflect.Indirect(reflect.ValueOf(to))
 	for i := 0; i < toVal.NumField(); i++ {
 		field := toVal.Type().Field(i)
-		if val, ok := values[field.Name]; ok {
-			toVal.Field(i).Set(val)
+		if val, ok := fromVal.Type().FieldByName(field.Name); ok {
+			toVal.Field(i).Set(fromVal.Field(val.Index[0]))
 		}
 	}
+
 	return to
 }

@@ -11,7 +11,7 @@ var DB *gorm.DB
 var MEM *gorm.DB
 var DB_ENCRYPT_KEY string
 
-func init() {
+func InitDB() {
 	var err error
 
 	if env.String("GIN_MODE", true) == ginger.GIN_MODE_TEST {

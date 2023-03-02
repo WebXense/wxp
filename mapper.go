@@ -10,7 +10,17 @@ func (m *BaseMapper[T]) Map2DTO(from interface{}) *T {
 	return m.map2(from)
 }
 
-func (m *BaseMapper[T]) Map2DTOs(from []interface{}) []T {
+func (m *BaseMapper[T]) Map2DTOs(fromArray interface{}) []T {
+	fromVal := reflect.ValueOf(fromArray)
+	if fromVal.Kind() != reflect.Slice {
+		panic("from must be a slice")
+	}
+
+	var from = make([]interface{}, fromVal.Len())
+	for i := 0; i < fromVal.Len(); i++ {
+		from[i] = fromVal.Index(i).Interface()
+	}
+
 	var to []T
 	for _, f := range from {
 		t := m.Map2DTO(f)

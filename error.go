@@ -10,7 +10,7 @@ type _error struct {
 	msg  string
 }
 
-func New(uuid string) Error {
+func NewError(uuid string) Error {
 	return &_error{
 		uuid: uuid,
 		msg:  errMap[uuid],

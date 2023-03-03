@@ -32,10 +32,10 @@ func generateTypeScript() {
 
 	models := make(map[string]interface{})
 	for _, api := range apis {
-		if api.request == nil {
+		if api.request != nil {
 			models[modelName(api.request)] = api.request
 		}
-		if api.response == nil {
+		if api.response != nil {
 			models[modelName(api.response)] = api.response
 		}
 	}

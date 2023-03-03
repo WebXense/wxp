@@ -9,6 +9,7 @@ import (
 var Engine = ginger.NewEngine()
 
 func RunServer() {
+	generateTypeScript()
 	Engine.Run(env.String("GIN_HOST"))
 }
 

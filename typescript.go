@@ -151,5 +151,5 @@ const _handleResponse = async <T>(resp: globalThis.Response): Promise<T> => {
 }
 
 func modelName(model interface{}) string {
-	return reflect.ValueOf(model).Type().Name()
+	return reflect.ValueOf(model).String()
 }

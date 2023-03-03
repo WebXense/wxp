@@ -32,8 +32,12 @@ func generateTypeScript() {
 
 	models := make(map[string]interface{})
 	for _, api := range apis {
-		models[modelName(api.request)] = api.request
-		models[modelName(api.response)] = api.response
+		if api.request == nil {
+			models[modelName(api.request)] = api.request
+		}
+		if api.response == nil {
+			models[modelName(api.response)] = api.response
+		}
 	}
 
 	for _, model := range models {

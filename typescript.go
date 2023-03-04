@@ -49,5 +49,5 @@ func generateTypeScript() {
 }
 
 func modelName(model interface{}) string {
-	return reflect.ValueOf(model).String()
+	return reflect.TypeOf(model).Elem().Name()
 }

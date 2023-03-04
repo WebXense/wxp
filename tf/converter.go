@@ -75,9 +75,9 @@ func (c *converter) convertToInterface(model any) string {
 		} else if field.Type.Kind() == reflect.Slice {
 			if field.Type.Elem().Kind() == reflect.Struct {
 				outPutStr += c.convertToInterface(reflect.New(field.Type.Elem()).Interface())
-				fieldType = "[]" + field.Type.Elem().Name()
+				fieldType = field.Type.Elem().Name() + "[]"
 			} else {
-				fieldType = "[]" + c.goTypeToTsType(field.Type.Elem().Name())
+				fieldType = c.goTypeToTsType(field.Type.Elem().Name()) + "[]"
 			}
 		} else if field.Type.Kind() == reflect.Struct {
 			fieldType = field.Type.Name()

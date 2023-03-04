@@ -40,9 +40,8 @@ func generateTypeScript() {
 		}
 	}
 
-	LogDebug("models: %v", models)
-
-	for _, model := range models {
+	for key, model := range models {
+		LogDebug("model: %s, %v", key, model)
 		converter.Add(model)
 	}
 

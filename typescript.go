@@ -33,11 +33,11 @@ func generateTypeScript() {
 	}
 
 	os.RemoveAll("api")
-	err := os.Mkdir("api", os.ModeAppend)
+	err := os.Mkdir("api", os.ModePerm)
 	if err != nil {
 		panic(err)
 	}
-	err = os.WriteFile("api/model.ts", []byte(converter.ToString()), os.ModeAppend)
+	err = os.WriteFile("api/model.ts", []byte(converter.ToString()), os.ModePerm)
 	if err != nil {
 		panic(err)
 	}

@@ -1,10 +1,9 @@
 package wxp
 
 import (
-	"reflect"
-	"time"
+	"os"
 
-	tf "github.com/tkrajina/typescriptify-golang-structs/typescriptify"
+	"github.com/WebXense/wxp/tf"
 )
 
 type api struct {
@@ -27,27 +26,13 @@ func registerApi(method string, route string, request interface{}, response inte
 
 func generateTypeScript() {
 	converter := tf.New()
-	converter.ManageType(time.Time{}, tf.TypeOptions{TSType: "Date", TSTransform: "new Date(__VALUE__)"})
-	converter.BackupDir = "" // don't backup
 
-	models := make(map[string]interface{})
 	for _, api := range apis {
-		if api.request != nil {
-			models[modelName(api.request)] = api.request
-		}
-		if api.response != nil {
-			models[modelName(api.response)] = api.response
-		}
+		converter.Add(api.request)
+		converter.Add(api.response)
 	}
 
-	for key, model := range models {
-		LogDebug("model: %s, %v", key, model)
-		converter.Add(model)
-	}
-
-	converter.WithInterface(true).ConvertToFile("api.ts")
-}
-
-func modelName(model interface{}) string {
-	return reflect.TypeOf(model).Elem().Name()
+	os.RemoveAll("api")
+	os.Mkdir("api", os.ModeAppend)
+	os.WriteFile("api/model.ts", []byte(converter.ToString()), os.ModeAppend)
 }

@@ -3,33 +3,30 @@ package wxp
 import (
 	"os"
 
+	"github.com/WebXense/wxp/api"
 	"github.com/WebXense/wxp/tf"
 )
 
-type api struct {
-	method   string
-	route    string
-	request  interface{}
-	response interface{}
-}
+var apis = make(map[string]api.Api)
 
-var apis = make(map[string]api)
-
-func registerApi(method string, route string, request interface{}, response interface{}) {
-	apis[route] = api{
-		method:   method,
-		route:    route,
-		request:  request,
-		response: response,
+func registerApi(method string, route string, request interface{}, response interface{}, service interface{}) {
+	apis[route] = api.Api{
+		Method:   method,
+		Route:    route,
+		Request:  request,
+		Response: response,
+		Service:  service,
 	}
 }
 
 func generateTypeScript() {
-	converter := tf.New()
+	modelConverter := tf.New()
+	apiConverter := api.New()
 
-	for _, api := range apis {
-		converter.Add(api.request)
-		converter.Add(api.response)
+	for _, a := range apis {
+		modelConverter.Add(a.Request)
+		modelConverter.Add(a.Response)
+		apiConverter.Add(a.Method, a.Route, a.Request, a.Response, a.Service)
 	}
 
 	os.RemoveAll("api")
@@ -37,7 +34,11 @@ func generateTypeScript() {
 	if err != nil {
 		panic(err)
 	}
-	err = os.WriteFile("api/model.ts", []byte(converter.ToString()), os.ModePerm)
+	err = os.WriteFile("api/model.ts", []byte(modelConverter.ToString()), os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+	err = os.WriteFile("api/api.ts", []byte(apiConverter.ToString()), os.ModePerm)
 	if err != nil {
 		panic(err)
 	}

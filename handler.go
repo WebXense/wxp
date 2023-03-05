@@ -17,7 +17,7 @@ type Handler[T any] func() *HandlerResponse[T]
 func RegisterHandler[T any](handler Handler[T], middleware ...gin.HandlerFunc) {
 	setting := handler()
 
-	registerApi(setting.Method, setting.Route, new(T), setting.Response)
+	registerApi(setting.Method, setting.Route, new(T), setting.Response, setting.Service)
 
 	ginHandler := func(ctx *gin.Context) {
 		var err Error

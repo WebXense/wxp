@@ -74,18 +74,18 @@ func (c *converter) convertToGet(a Api) string {
 	}
 	output := "export const " + c.nameOfFunc(a.Service) + " = async ("
 	if a.Request != nil {
-		output += "req: " + c.nameOfModel(a.Request)
+		output += "req: model." + c.nameOfModel(a.Request)
 	}
 	output += "): Promise<Response<"
 	if a.Response != nil {
-		output += c.nameOfModel(a.Response)
+		output += "model." + c.nameOfModel(a.Response)
 	} else {
 		output += "null"
 	}
 	output += "> | null> => {\n"
 	output += "    return get<"
 	if a.Response != nil {
-		output += c.nameOfModel(a.Response)
+		output += "model." + c.nameOfModel(a.Response)
 	} else {
 		output += "null"
 	}
@@ -119,18 +119,18 @@ func (c *converter) convertToNonGet(a Api, method string) string {
 	}
 	output := "export const " + c.nameOfFunc(a.Service) + " = async ("
 	if a.Request != nil {
-		output += "req: " + c.nameOfModel(a.Request)
+		output += "req: model." + c.nameOfModel(a.Request)
 	}
 	output += "): Promise<Response<"
 	if a.Response != nil {
-		output += c.nameOfModel(a.Response)
+		output += "model." + c.nameOfModel(a.Response)
 	} else {
 		output += "null"
 	}
 	output += "> | null> => {\n"
 	output += "    return " + method + "<"
 	if a.Response != nil {
-		output += c.nameOfModel(a.Response)
+		output += "model." + c.nameOfModel(a.Response)
 	} else {
 		output += "null"
 	}
@@ -169,7 +169,7 @@ func (c *converter) getQueryList(model interface{}) [][]string {
 	for i := 0; i < reflect.TypeOf(model).NumField(); i++ {
 		tag := reflect.TypeOf(model).Field(i).Tag.Get("form")
 		if tag != "" {
-			output = append(output, []string{tag, reflect.TypeOf(model).Field(i).Name})
+			output = append(output, []string{tag, tag})
 		}
 	}
 	return output
@@ -188,7 +188,7 @@ func (c *converter) getUriList(model interface{}) [][]string {
 	for i := 0; i < reflect.TypeOf(model).NumField(); i++ {
 		tag := reflect.TypeOf(model).Field(i).Tag.Get("uri")
 		if tag != "" {
-			output = append(output, []string{tag, reflect.TypeOf(model).Field(i).Name})
+			output = append(output, []string{tag, tag})
 		}
 	}
 	return output
@@ -223,7 +223,7 @@ func (c *converter) replaceUri(route string, uriList [][]string) string {
 }
 
 const prefix = `
-import * from './model';
+import * as model from './model';
 
 export const getAPIHost = (): string => {
     return process.env.NEXT_PUBLIC_API_HOST || 'http://127.0.0.1:5000';

@@ -4,7 +4,6 @@ import (
 	"log"
 	"reflect"
 
-	"github.com/WebXense/wxp/reflect_util"
 	"github.com/iancoleman/strcase"
 )
 
@@ -23,12 +22,21 @@ type converter struct {
 }
 
 func (c *converter) Add(model interface{}) {
-	if model == nil ||
-		!reflect_util.IsStruct(model) ||
-		reflect_util.ModelName(model) == "" {
+	if model == nil {
 		return
 	}
-	c.models[reflect.TypeOf(model).Name()] = reflect_util.EnsureNotPointer(model)
+	if reflect.TypeOf(model).Kind() == reflect.Ptr {
+		model = reflect.ValueOf(model).Elem().Interface()
+	}
+	if reflect.TypeOf(model).Kind() != reflect.Struct {
+		log.Println("[WARNING] tf: model must be a struct")
+		return
+	}
+	if reflect.TypeOf(model).Name() == "" {
+		log.Println("[WARNING] tf: model must has a name")
+		return
+	}
+	c.models[reflect.TypeOf(model).Name()] = model
 }
 
 func (c *converter) SetupTypeMap(typeMap map[string]string) {
@@ -46,35 +54,39 @@ func (c *converter) ToString() string {
 }
 
 func (c *converter) convertToInterface(model any) string {
-	model = reflect_util.EnsureNotPointer(model)
-	nameOfModel := reflect_util.ModelName(model)
+	if reflect.TypeOf(model).Kind() == reflect.Ptr {
+		model = reflect.ValueOf(model).Elem().Interface()
+	}
+
+	nameOfModel := reflect.TypeOf(model).Name()
 	if c.generated[nameOfModel] {
 		return ""
 	}
 
 	outPutStr := ""
 	modelStr := "export interface " + nameOfModel + " {\n"
-
-	for i := 0; i < reflect_util.NumOfField(model); i++ {
+	numOfField := reflect.TypeOf(model).NumField()
+	for i := 0; i < numOfField; i++ {
+		field := reflect.TypeOf(model).Field(i)
 		fieldName := c.getFieldName(model, i)
 		if fieldName == "" {
 			continue
 		}
 		var fieldType string
-		if _, ok := c.typeMap[reflect_util.ModelName(model)]; ok {
-			fieldType = c.typeMap[reflect_util.ModelName(model)]
-		} else if reflect_util.IsSlice(model) {
-			if reflect_util.SliceReflectKind(reflect_util.EnsureNotPointer(model)) == reflect.Struct {
-				outPutStr += c.convertToInterface(reflect_util.ValueByIndex(model, i))
-				fieldType = reflect_util.SliceTypeNameByIndex(model, i) + "[]"
+		if _, ok := c.typeMap[field.Type.Name()]; ok {
+			fieldType = c.typeMap[field.Type.Name()]
+		} else if field.Type.Kind() == reflect.Slice {
+			if field.Type.Elem().Kind() == reflect.Struct {
+				outPutStr += c.convertToInterface(reflect.New(field.Type.Elem()).Interface())
+				fieldType = field.Type.Elem().Name() + "[]"
 			} else {
-				fieldType = c.goTypeToTsType(reflect_util.TypeNameByIndex(model, i)) + "[]"
+				fieldType = c.goTypeToTsType(field.Type.Elem().Name()) + "[]"
 			}
-		} else if reflect_util.IsStruct(model) {
-			field := reflect.TypeOf(model).Field(i)
+		} else if field.Type.Kind() == reflect.Struct {
+			fieldType = field.Type.Name()
 			outPutStr += c.convertToInterface(reflect.New(field.Type).Interface())
 		} else {
-			fieldType = c.goTypeToTsType(reflect_util.TypeNameByIndex(model, i))
+			fieldType = c.goTypeToTsType(field.Type.Name())
 		}
 		modelStr += "    " + strcase.ToLowerCamel(fieldName) + ": " + fieldType + ";\n"
 	}
@@ -112,8 +124,9 @@ func (c *converter) goTypeToTsType(goType string) string {
 
 func (c *converter) getFieldName(model interface{}, index int) string {
 	for _, tag := range []string{"json", "form", "uri"} {
-		if reflect_util.HasTagByIndex(model, index, tag) {
-			return reflect_util.TagValueByIndex(model, index, tag)
+		t := reflect.TypeOf(model).Field(index).Tag.Get(tag)
+		if t != "" {
+			return t
 		}
 	}
 	return ""

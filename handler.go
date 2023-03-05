@@ -20,10 +20,7 @@ func RegisterHandler[T any](handler Handler[T], middleware ...gin.HandlerFunc) {
 	setting := handler()
 
 	var requestObj interface{} = new(T)
-	if reflect.TypeOf(requestObj).Kind() == reflect.Pointer {
-		requestObj = reflect.New(reflect.TypeOf(requestObj).Elem()).Interface()
-	}
-	if reflect.TypeOf(requestObj).Kind() == reflect.Struct && reflect.TypeOf(requestObj).NumField() == 0 {
+	if reflect.TypeOf(requestObj).Name() == "struct{}" {
 		requestObj = nil
 	}
 	registerApi(setting.Method, setting.Route, requestObj, setting.Response, setting.Service)

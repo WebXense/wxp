@@ -32,6 +32,13 @@ func (m *BaseMapper[T]) Map2DTOs(fromArray interface{}) []T {
 func MapObject[T any](from interface{}) *T {
 	to := reflect.ValueOf(new(T)).Elem()
 
+	if from == nil {
+		return nil
+	}
+	if reflect.TypeOf(from).Kind() == reflect.Ptr {
+		from = reflect.ValueOf(from).Elem().Interface()
+	}
+
 	val := reflect.ValueOf(from)
 	for i := 0; i < val.NumField(); i++ {
 		field := val.Field(i)

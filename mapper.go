@@ -30,23 +30,29 @@ func (m *BaseMapper[T]) Map2DTOs(fromArray interface{}) []T {
 }
 
 func MapObject[T any](from interface{}) *T {
-	to := new(T)
-	toVal := reflect.Indirect(reflect.ValueOf(to))
-	if toVal.Kind() != reflect.Struct {
-		panic("to must be a struct")
-	}
+	to := reflect.ValueOf(new(T)).Elem()
 
-	fromVal := reflect.Indirect(reflect.ValueOf(from))
-	if fromVal.Kind() != reflect.Struct {
-		panic("from must be a struct")
-	}
-
-	for i := 0; i < toVal.NumField(); i++ {
-		field := toVal.Type().Field(i)
-		if val, ok := fromVal.Type().FieldByName(field.Name); ok {
-			toVal.Field(i).Set(fromVal.Field(val.Index[0]))
+	val := reflect.ValueOf(from)
+	for i := 0; i < val.NumField(); i++ {
+		field := val.Field(i)
+		if !field.IsZero() {
+			switch field.Kind() {
+			case reflect.String:
+				to.Field(i).SetString(field.String())
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+				to.Field(i).SetInt(field.Int())
+			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+				to.Field(i).SetUint(field.Uint())
+			case reflect.Float32, reflect.Float64:
+				to.Field(i).SetFloat(field.Float())
+			case reflect.Bool:
+				to.Field(i).SetBool(field.Bool())
+			case reflect.Slice, reflect.Array, reflect.Map, reflect.Struct, reflect.Ptr:
+				to.Field(i).Set(field)
+			}
 		}
 	}
 
-	return to
+	output := to.Interface().(T)
+	return &output
 }

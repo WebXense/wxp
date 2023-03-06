@@ -153,7 +153,7 @@ func (c *converter) nameOfModel(model interface{}) string {
 
 func (c *converter) nameOfFunc(f interface{}) string {
 	xs := strings.Split(runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name(), ".")
-	return strings.TrimRight(strcase.ToLowerCamel(xs[len(xs)-1]), "Fm")
+	return strings.TrimSuffix(strcase.ToLowerCamel(xs[len(xs)-1]), "Fm")
 }
 
 func (c *converter) getQueryList(model interface{}) [][]string {

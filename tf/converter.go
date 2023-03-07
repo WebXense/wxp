@@ -3,6 +3,7 @@ package tf
 import (
 	"log"
 	"reflect"
+	"strings"
 )
 
 func New() *converter {
@@ -124,6 +125,15 @@ func (c *converter) getFieldName(model interface{}, index int) string {
 	for _, tag := range []string{"json", "form", "uri"} {
 		t := reflect.TypeOf(model).Field(index).Tag.Get(tag)
 		if t != "" {
+			var canOmit bool
+			if strings.Contains(t, "omitempty") {
+				canOmit = true
+			}
+			t = strings.ReplaceAll(t, "omitempty", "")
+			t = strings.ReplaceAll(t, ",", "")
+			if canOmit {
+				t += "?"
+			}
 			return t
 		}
 	}

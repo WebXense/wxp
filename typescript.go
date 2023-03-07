@@ -10,6 +10,10 @@ import (
 var apis = make(map[string]api.Api)
 
 func registerApi(method string, route string, request interface{}, response interface{}, handler interface{}) {
+	_, ok := apis[method+":"+route]
+	if ok {
+		panic("api already registered: " + method + ":" + route)
+	}
 	apis[method+":"+route] = api.Api{
 		Method:   method,
 		Route:    route,

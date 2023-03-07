@@ -43,19 +43,23 @@ func MapObject[T any](from interface{}) *T {
 	for i := 0; i < val.NumField(); i++ {
 		field := val.Field(i)
 		if !field.IsZero() {
-			switch field.Kind() {
-			case reflect.String:
-				to.Field(i).SetString(field.String())
-			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-				to.Field(i).SetInt(field.Int())
-			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-				to.Field(i).SetUint(field.Uint())
-			case reflect.Float32, reflect.Float64:
-				to.Field(i).SetFloat(field.Float())
-			case reflect.Bool:
-				to.Field(i).SetBool(field.Bool())
-			case reflect.Slice, reflect.Array, reflect.Map, reflect.Struct, reflect.Ptr:
-				to.Field(i).Set(field)
+			fieldName := val.Type().Field(i).Name
+			_, ok := to.Type().FieldByName(fieldName)
+			if ok {
+				switch field.Kind() {
+				case reflect.String:
+					to.FieldByName(fieldName).SetString(field.String())
+				case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+					to.FieldByName(fieldName).SetInt(field.Int())
+				case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+					to.Field(i).SetUint(field.Uint())
+				case reflect.Float32, reflect.Float64:
+					to.Field(i).SetFloat(field.Float())
+				case reflect.Bool:
+					to.Field(i).SetBool(field.Bool())
+				case reflect.Slice, reflect.Array, reflect.Map, reflect.Struct, reflect.Ptr:
+					to.Field(i).Set(field)
+				}
 			}
 		}
 	}

@@ -12,6 +12,7 @@ type HandlerResponse[T any] struct {
 	Method   string
 	Response interface{}
 	Service  Service[T]
+	Handler  Handler[T]
 }
 
 type Handler[T any] func() *HandlerResponse[T]

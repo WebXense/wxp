@@ -20,20 +20,20 @@ type Api struct {
 	Route    string
 	Request  interface{}
 	Response interface{}
-	Service  interface{}
+	Handler  interface{}
 }
 
 type converter struct {
 	apis map[string]Api
 }
 
-func (c *converter) Add(method string, route string, request interface{}, response interface{}, service interface{}) {
+func (c *converter) Add(method string, route string, request interface{}, response interface{}, handler interface{}) {
 	c.apis[route] = Api{
 		Method:   method,
 		Route:    route,
 		Request:  request,
 		Response: response,
-		Service:  service,
+		Handler:  handler,
 	}
 }
 
@@ -72,7 +72,7 @@ func (c *converter) convertToGet(a Api) string {
 	} else {
 		a.Route += "\""
 	}
-	output := "export const " + c.nameOfFunc(a.Service) + " = async ("
+	output := "export const " + c.nameOfFunc(a.Handler) + " = async ("
 	if a.Request != nil {
 		output += "req: model." + c.nameOfModel(a.Request)
 	}
@@ -117,7 +117,7 @@ func (c *converter) convertToNonGet(a Api, method string) string {
 	} else {
 		a.Route += "\""
 	}
-	output := "export const " + c.nameOfFunc(a.Service) + " = async ("
+	output := "export const " + c.nameOfFunc(a.Handler) + " = async ("
 	if a.Request != nil {
 		output += "req: model." + c.nameOfModel(a.Request)
 	}

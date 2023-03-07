@@ -9,13 +9,13 @@ import (
 
 var apis = make(map[string]api.Api)
 
-func registerApi(method string, route string, request interface{}, response interface{}, service interface{}) {
+func registerApi(method string, route string, request interface{}, response interface{}, handler interface{}) {
 	apis[route] = api.Api{
 		Method:   method,
 		Route:    route,
 		Request:  request,
 		Response: response,
-		Service:  service,
+		Handler:  handler,
 	}
 }
 
@@ -26,7 +26,7 @@ func generateTypeScript() {
 	for _, a := range apis {
 		modelConverter.Add(a.Request)
 		modelConverter.Add(a.Response)
-		apiConverter.Add(a.Method, a.Route, a.Request, a.Response, a.Service)
+		apiConverter.Add(a.Method, a.Route, a.Request, a.Response, a.Handler)
 	}
 
 	os.RemoveAll("api")

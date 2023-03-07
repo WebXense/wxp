@@ -52,13 +52,13 @@ func MapObject[T any](from interface{}) *T {
 				case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 					to.FieldByName(fieldName).SetInt(field.Int())
 				case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-					to.Field(i).SetUint(field.Uint())
+					to.FieldByName(fieldName).SetUint(field.Uint())
 				case reflect.Float32, reflect.Float64:
-					to.Field(i).SetFloat(field.Float())
+					to.FieldByName(fieldName).SetFloat(field.Float())
 				case reflect.Bool:
-					to.Field(i).SetBool(field.Bool())
+					to.FieldByName(fieldName).SetBool(field.Bool())
 				case reflect.Slice, reflect.Array, reflect.Map, reflect.Struct, reflect.Ptr:
-					to.Field(i).Set(field)
+					to.FieldByName(fieldName).Set(field)
 				}
 			}
 		}

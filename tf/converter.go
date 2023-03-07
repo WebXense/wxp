@@ -126,7 +126,8 @@ func (c *converter) getFieldName(model interface{}, index int) string {
 		t := reflect.TypeOf(model).Field(index).Tag.Get(tag)
 		if t != "" {
 			var canOmit bool
-			if strings.Contains(t, "omitempty") {
+			binding := reflect.TypeOf(model).Field(index).Tag.Get("binding")
+			if strings.Contains(t, "omitempty") || !strings.Contains(binding, "required") {
 				canOmit = true
 			}
 			t = strings.ReplaceAll(t, "omitempty", "")

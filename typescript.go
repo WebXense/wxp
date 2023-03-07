@@ -10,7 +10,7 @@ import (
 var apis = make(map[string]api.Api)
 
 func registerApi(method string, route string, request interface{}, response interface{}, handler interface{}) {
-	apis[route] = api.Api{
+	apis[method+":"+route] = api.Api{
 		Method:   method,
 		Route:    route,
 		Request:  request,

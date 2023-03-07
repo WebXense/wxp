@@ -3,8 +3,6 @@ package tf
 import (
 	"log"
 	"reflect"
-
-	"github.com/iancoleman/strcase"
 )
 
 func New() *converter {
@@ -88,7 +86,7 @@ func (c *converter) convertToInterface(model any) string {
 		} else {
 			fieldType = c.goTypeToTsType(field.Type.Name())
 		}
-		modelStr += "    " + strcase.ToLowerCamel(fieldName) + ": " + fieldType + ";\n"
+		modelStr += "    " + fieldName + ": " + fieldType + ";\n"
 	}
 
 	modelStr += "}\n\n"

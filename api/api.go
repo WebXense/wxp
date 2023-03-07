@@ -28,7 +28,7 @@ type converter struct {
 }
 
 func (c *converter) Add(method string, route string, request interface{}, response interface{}, handler interface{}) {
-	c.apis[route] = Api{
+	c.apis[method+":"+route] = Api{
 		Method:   method,
 		Route:    route,
 		Request:  request,

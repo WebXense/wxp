@@ -27,7 +27,7 @@ func RegisterHandler[T any](handler Handler[T], middleware ...gin.HandlerFunc) {
 	if reflect.TypeOf(requestObj).Name() == "" {
 		requestObj = nil
 	}
-	registerApi(setting.Method, setting.Route, requestObj, setting.Response, setting.Service)
+	registerApi(setting.Method, setting.Route, requestObj, setting.Response, setting.Handler)
 
 	ginHandler := func(ctx *gin.Context) {
 		var err Error

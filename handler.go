@@ -21,11 +21,11 @@ func RegisterHandler[T any](handler Handler[T], middleware ...gin.HandlerFunc) {
 	setting := handler()
 
 	var requestObj interface{} = new(T)
-	if reflect.TypeOf(requestObj).Kind() == reflect.Ptr {
-		requestObj = reflect.New(reflect.TypeOf(requestObj).Elem()).Interface()
-	}
-	if reflect.TypeOf(requestObj).Name() == "" {
+	var requestName string = reflect.TypeOf(requestObj).Elem().Name()
+	if requestName == "" {
 		requestObj = nil
+	} else {
+		requestObj = reflect.New(reflect.TypeOf(requestObj).Elem()).Interface()
 	}
 	registerApi(setting.Method, setting.Route, requestObj, setting.Response, setting.Handler)
 

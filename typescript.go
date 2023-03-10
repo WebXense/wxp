@@ -23,7 +23,7 @@ func registerApi(method string, route string, request interface{}, response inte
 	}
 }
 
-func generateTypeScript() {
+func GenerateTypeScript() {
 	modelConverter := tf.New()
 	apiConverter := api.New()
 

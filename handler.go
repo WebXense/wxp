@@ -38,16 +38,16 @@ func RegisterHandler[T any](handler Handler[T], middleware ...gin.HandlerFunc) {
 			Sort:   ginger.SortRequest(ctx),
 		})
 		if err != nil {
-			ERR(ctx, err)
+			Server.ERR(ctx, err)
 			return
 		}
-		OK(ctx, data, nil)
+		Server.OK(ctx, data, nil)
 	}
 	if middleware == nil {
-		Engine.Handle(setting.Method, setting.Route, ginHandler)
+		Server.Engine.Handle(setting.Method, setting.Route, ginHandler)
 		return
 	} else {
 		middleware = append(middleware, ginHandler)
-		Engine.Handle(setting.Method, setting.Route, middleware...)
+		Server.Engine.Handle(setting.Method, setting.Route, middleware...)
 	}
 }

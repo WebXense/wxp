@@ -6,18 +6,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var Engine = ginger.NewEngine()
-
-func RunServer() {
-	generateTypeScript()
-	Engine.Run(env.String("GIN_HOST"))
+var Server = server{
+	Engine: ginger.NewEngine(),
 }
 
-func OK(ctx *gin.Context, data interface{}, page *ginger.Pagination) {
+type server struct {
+	Engine *gin.Engine
+}
+
+func (s *server) Run() {
+	s.Engine.Run(env.String("GIN_HOST"))
+}
+
+func (s *server) OK(ctx *gin.Context, data interface{}, page *ginger.Pagination) {
 	ginger.OK(ctx, data, page)
 }
 
-func ERR(ctx *gin.Context, err Error, data ...interface{}) {
+func (s *server) ERR(ctx *gin.Context, err Error, data ...interface{}) {
 	if len(data) > 0 {
 		ginger.ERR(ctx, err.UUID(), err.Error(), data[0])
 		return

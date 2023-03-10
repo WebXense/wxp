@@ -20,17 +20,21 @@ var fileLogger = func() *log.Logger {
 	return log.New(file, "", log.LstdFlags)
 }()
 
-func LogInfo(msg ...any) {
+var Logger = &logger{}
+
+type logger struct{}
+
+func (l *logger) Info(msg ...any) {
 	stdLogger.Println("[INFO]", msg)
 	fileLogger.Println("[INFO]", msg)
 }
 
-func LogErr(msg ...any) {
+func (l *logger) Err(msg ...any) {
 	stdLogger.Println("[ERR]", msg)
 	fileLogger.Println("[ERR]", msg)
 }
 
-func LogDebug(msg ...any) {
+func (l *logger) Debug(msg ...any) {
 	if env.String("GIN_MODE", true) != ginger.GIN_MODE_RELEASE {
 		stdLogger.Println("[DEBUG]", msg)
 	}

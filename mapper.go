@@ -68,6 +68,10 @@ func MapObject[T any](from interface{}) *T {
 	_, ok := reflect.TypeOf(from).FieldByName("Model")
 	if ok {
 		for _, fieldName := range []string{"ID", "CreatedAt", "UpdatedAt", "DeletedAt"} {
+			_, ok := reflect.ValueOf(from).FieldByName("Model").Type().FieldByName(fieldName)
+			if !ok {
+				continue
+			}
 			field := reflect.ValueOf(from).FieldByName("Model").FieldByName(fieldName)
 			if !field.IsZero() {
 				to.FieldByName(fieldName).Set(field)

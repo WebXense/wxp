@@ -57,9 +57,20 @@ func MapObject[T any](from interface{}) *T {
 					to.FieldByName(fieldName).SetFloat(field.Float())
 				case reflect.Bool:
 					to.FieldByName(fieldName).SetBool(field.Bool())
-				case reflect.Slice, reflect.Array, reflect.Map, reflect.Struct, reflect.Ptr:
+				case reflect.Slice, reflect.Array, reflect.Struct, reflect.Map, reflect.Ptr:
 					to.FieldByName(fieldName).Set(field)
 				}
+			}
+		}
+	}
+
+	// handle gorm.Model
+	_, ok := reflect.TypeOf(from).FieldByName("Model")
+	if ok {
+		for _, fieldName := range []string{"ID", "CreatedAt", "UpdatedAt", "DeletedAt"} {
+			field := reflect.ValueOf(from).FieldByName("Model").FieldByName(fieldName)
+			if !field.IsZero() {
+				to.FieldByName(fieldName).Set(field)
 			}
 		}
 	}

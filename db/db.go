@@ -1,4 +1,4 @@
-package wxp
+package db
 
 import (
 	"github.com/WebXense/env"
@@ -8,12 +8,9 @@ import (
 )
 
 var DB *gorm.DB
-var MEM *gorm.DB
-var DB_ENCRYPT_KEY string
 
-func InitDB() {
+func init() {
 	var err error
-
 	if env.String("GIN_MODE", true) == ginger.GIN_MODE_TEST {
 		DB, err = conn.SQLite("test.db", false)
 	} else {
@@ -26,15 +23,7 @@ func InitDB() {
 			env.String("GIN_MODE", true) == ginger.GIN_MODE_RELEASE,
 		)
 	}
-
 	if err != nil {
 		panic(err)
 	}
-
-	MEM, err = conn.SQLiteInMemory(env.String("GIN_MODE", true) == ginger.GIN_MODE_RELEASE)
-	if err != nil {
-		panic(err)
-	}
-
-	DB_ENCRYPT_KEY = env.String("DB_ENCRYPT_KEY")
 }

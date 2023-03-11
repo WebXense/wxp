@@ -1,26 +1,27 @@
-package tf
+package typescript
 
 import (
-	"log"
 	"reflect"
 	"strings"
+
+	"github.com/WebXense/wxp/logger"
 )
 
-func New() *converter {
-	return &converter{
+func NewModelConverter() *modelConverter {
+	return &modelConverter{
 		models:    make(map[string]interface{}),
 		typeMap:   make(map[string]string),
 		generated: make(map[string]bool),
 	}
 }
 
-type converter struct {
+type modelConverter struct {
 	models    map[string]interface{}
 	typeMap   map[string]string
 	generated map[string]bool
 }
 
-func (c *converter) Add(model interface{}) {
+func (c *modelConverter) Add(model interface{}) {
 	if model == nil {
 		return
 	}
@@ -28,21 +29,21 @@ func (c *converter) Add(model interface{}) {
 		model = reflect.ValueOf(model).Elem().Interface()
 	}
 	if reflect.TypeOf(model).Kind() != reflect.Struct {
-		log.Println("[WARNING] tf: model must be a struct")
+		logger.Warn("model must be a struct", model)
 		return
 	}
 	if reflect.TypeOf(model).Name() == "" {
-		log.Println("[WARNING] tf: model must has a name")
+		logger.Warn("model must has a name", model)
 		return
 	}
 	c.models[reflect.TypeOf(model).Name()] = model
 }
 
-func (c *converter) SetupTypeMap(typeMap map[string]string) {
+func (c *modelConverter) SetupTypeMap(typeMap map[string]string) {
 	c.typeMap = typeMap
 }
 
-func (c *converter) ToString() string {
+func (c *modelConverter) ToString() string {
 	modelStr := ""
 
 	for _, model := range c.models {
@@ -52,7 +53,7 @@ func (c *converter) ToString() string {
 	return modelStr
 }
 
-func (c *converter) convertToInterface(model any) string {
+func (c *modelConverter) convertToInterface(model any) string {
 	if reflect.TypeOf(model).Kind() == reflect.Ptr {
 		model = reflect.ValueOf(model).Elem().Interface()
 	}
@@ -96,7 +97,7 @@ func (c *converter) convertToInterface(model any) string {
 	return outPutStr
 }
 
-func (c *converter) goTypeToTsType(goType string) string {
+func (c *modelConverter) goTypeToTsType(goType string) string {
 	switch goType {
 	case "string":
 		return "string"
@@ -115,13 +116,13 @@ func (c *converter) goTypeToTsType(goType string) string {
 	case "bool":
 		return "boolean"
 	default:
-		log.Fatalln("[ERROR] tf: unknown type:", goType)
+		logger.Err("unknown type", goType)
 	}
 
 	return ""
 }
 
-func (c *converter) getFieldName(model interface{}, index int) string {
+func (c *modelConverter) getFieldName(model interface{}, index int) string {
 	for _, tag := range []string{"json", "form", "uri"} {
 		t := reflect.TypeOf(model).Field(index).Tag.Get(tag)
 		if t != "" {

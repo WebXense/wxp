@@ -4,6 +4,8 @@ import (
 	"reflect"
 
 	"github.com/WebXense/ginger/ginger"
+	"github.com/WebXense/wxp/errs"
+	"github.com/WebXense/wxp/server"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,7 +14,6 @@ type HandlerResponse[T any] struct {
 	Method   string
 	Response interface{}
 	Service  Service[T]
-	Handler  Handler[T]
 }
 
 type Handler[T any] func() *HandlerResponse[T]
@@ -27,10 +28,10 @@ func RegisterHandler[T any](handler Handler[T], middleware ...gin.HandlerFunc) {
 	} else {
 		requestObj = reflect.New(reflect.TypeOf(requestObj).Elem()).Interface()
 	}
-	registerApi(setting.Method, setting.Route, requestObj, setting.Response, setting.Handler)
+	registerApi(setting.Method, setting.Route, requestObj, setting.Response, handler)
 
 	ginHandler := func(ctx *gin.Context) {
-		var err Error
+		var err errs.Error
 		data, err := setting.Service(&Request[T]{
 			Ctx:    ctx,
 			Object: ginger.Request[T](ctx),
@@ -38,16 +39,16 @@ func RegisterHandler[T any](handler Handler[T], middleware ...gin.HandlerFunc) {
 			Sort:   ginger.SortRequest(ctx),
 		})
 		if err != nil {
-			Server.ERR(ctx, err)
+			server.ERR(ctx, err)
 			return
 		}
-		Server.OK(ctx, data, nil)
+		server.OK(ctx, data, nil)
 	}
 	if middleware == nil {
-		Server.Engine.Handle(setting.Method, setting.Route, ginHandler)
+		server.Engine.Handle(setting.Method, setting.Route, ginHandler)
 		return
 	} else {
 		middleware = append(middleware, ginHandler)
-		Server.Engine.Handle(setting.Method, setting.Route, middleware...)
+		server.Engine.Handle(setting.Method, setting.Route, middleware...)
 	}
 }

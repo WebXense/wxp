@@ -2,6 +2,7 @@ package wxp
 
 import (
 	"github.com/WebXense/sql"
+	"github.com/WebXense/wxp/errs"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,4 +17,4 @@ type Response[T any] struct {
 	Data *T
 }
 
-type Service[T any] func(req *Request[T]) (interface{}, Error)
+type Service[T any] func(req *Request[T]) (interface{}, errs.Error)

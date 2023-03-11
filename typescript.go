@@ -3,18 +3,17 @@ package wxp
 import (
 	"os"
 
-	"github.com/WebXense/wxp/api"
-	"github.com/WebXense/wxp/tf"
+	"github.com/WebXense/wxp/typescript"
 )
 
-var apis = make(map[string]api.Api)
+var apis = make(map[string]typescript.Api)
 
 func registerApi(method string, route string, request interface{}, response interface{}, handler interface{}) {
 	_, ok := apis[method+":"+route]
 	if ok {
 		panic("api already registered: " + method + ":" + route)
 	}
-	apis[method+":"+route] = api.Api{
+	apis[method+":"+route] = typescript.Api{
 		Method:   method,
 		Route:    route,
 		Request:  request,
@@ -24,8 +23,8 @@ func registerApi(method string, route string, request interface{}, response inte
 }
 
 func GenerateTypeScript() {
-	modelConverter := tf.New()
-	apiConverter := api.New()
+	modelConverter := typescript.NewModelConverter()
+	apiConverter := typescript.NewApiConverter()
 
 	for _, a := range apis {
 		modelConverter.Add(a.Request)

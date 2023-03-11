@@ -1,4 +1,4 @@
-package api
+package typescript
 
 import (
 	"log"
@@ -9,8 +9,8 @@ import (
 	"github.com/iancoleman/strcase"
 )
 
-func New() *converter {
-	return &converter{
+func NewApiConverter() *apiConverter {
+	return &apiConverter{
 		apis: make(map[string]Api),
 	}
 }
@@ -23,11 +23,11 @@ type Api struct {
 	Handler  interface{}
 }
 
-type converter struct {
+type apiConverter struct {
 	apis map[string]Api
 }
 
-func (c *converter) Add(method string, route string, request interface{}, response interface{}, handler interface{}) {
+func (c *apiConverter) Add(method string, route string, request interface{}, response interface{}, handler interface{}) {
 	c.apis[method+":"+route] = Api{
 		Method:   method,
 		Route:    route,
@@ -37,7 +37,7 @@ func (c *converter) Add(method string, route string, request interface{}, respon
 	}
 }
 
-func (c *converter) ToString() string {
+func (c *apiConverter) ToString() string {
 	output := ""
 	for _, api := range c.apis {
 		output += c.convertToApi(api)
@@ -45,7 +45,7 @@ func (c *converter) ToString() string {
 	return prefix + output
 }
 
-func (c *converter) convertToApi(a Api) string {
+func (c *apiConverter) convertToApi(a Api) string {
 	switch a.Method {
 	case "GET":
 		return c.convertToGet(a)
@@ -61,7 +61,7 @@ func (c *converter) convertToApi(a Api) string {
 	return ""
 }
 
-func (c *converter) convertToGet(a Api) string {
+func (c *apiConverter) convertToGet(a Api) string {
 	if a.Request != nil {
 		uriList := c.getUriList(a.Request)
 		if len(uriList) > 0 {
@@ -106,7 +106,7 @@ func (c *converter) convertToGet(a Api) string {
 	return output
 }
 
-func (c *converter) convertToNonGet(a Api, method string) string {
+func (c *apiConverter) convertToNonGet(a Api, method string) string {
 	if a.Request != nil {
 		uriList := c.getUriList(a.Request)
 		if len(uriList) > 0 {
@@ -144,19 +144,19 @@ func (c *converter) convertToNonGet(a Api, method string) string {
 	return output
 }
 
-func (c *converter) nameOfModel(model interface{}) string {
+func (c *apiConverter) nameOfModel(model interface{}) string {
 	if reflect.TypeOf(model).Kind() == reflect.Ptr {
 		model = reflect.ValueOf(model).Elem().Interface()
 	}
 	return reflect.TypeOf(model).Name()
 }
 
-func (c *converter) nameOfFunc(f interface{}) string {
+func (c *apiConverter) nameOfFunc(f interface{}) string {
 	xs := strings.Split(runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name(), ".")
 	return strings.TrimSuffix(strcase.ToLowerCamel(xs[len(xs)-1]), "Fm")
 }
 
-func (c *converter) getQueryList(model interface{}) [][]string {
+func (c *apiConverter) getQueryList(model interface{}) [][]string {
 	output := make([][]string, 0)
 	if reflect.TypeOf(model).Kind() == reflect.Ptr {
 		model = reflect.ValueOf(model).Elem().Interface()
@@ -175,7 +175,7 @@ func (c *converter) getQueryList(model interface{}) [][]string {
 	return output
 }
 
-func (c *converter) getUriList(model interface{}) [][]string {
+func (c *apiConverter) getUriList(model interface{}) [][]string {
 	output := make([][]string, 0)
 	if reflect.TypeOf(model).Kind() == reflect.Ptr {
 		model = reflect.ValueOf(model).Elem().Interface()
@@ -194,7 +194,7 @@ func (c *converter) getUriList(model interface{}) [][]string {
 	return output
 }
 
-func (c *converter) replaceUri(route string, uriList [][]string) string {
+func (c *apiConverter) replaceUri(route string, uriList [][]string) string {
 	for j, uri := range uriList {
 		xs := strings.Split(route, "/")
 

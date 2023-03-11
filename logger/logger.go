@@ -1,4 +1,4 @@
-package wxp
+package logger
 
 import (
 	"log"
@@ -20,21 +20,21 @@ var fileLogger = func() *log.Logger {
 	return log.New(file, "", log.LstdFlags)
 }()
 
-var Logger = &logger{}
-
-type logger struct{}
-
-func (l *logger) Info(msg ...any) {
+func Info(msg ...any) {
 	stdLogger.Println("[INFO]", msg)
 	fileLogger.Println("[INFO]", msg)
 }
 
-func (l *logger) Err(msg ...any) {
+func Warn(msg ...any) {
+	stdLogger.Println("[WARN]", msg)
+}
+
+func Err(msg ...any) {
 	stdLogger.Println("[ERR]", msg)
 	fileLogger.Println("[ERR]", msg)
 }
 
-func (l *logger) Debug(msg ...any) {
+func Debug(msg ...any) {
 	if env.String("GIN_MODE", true) != ginger.GIN_MODE_RELEASE {
 		stdLogger.Println("[DEBUG]", msg)
 	}
